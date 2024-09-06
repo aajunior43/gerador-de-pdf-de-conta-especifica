@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Relatório PDF - Prefeitura de Inajá</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --input-background: #ffffff;
+            --input-border: #bdc3c7;
+            --container-background: #ffffff;
+            --container-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --button-hover: #2980b9;
+        }
+        [data-theme="dark"] {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --input-background: #34495e;
+            --input-border: #7f8c8d;
+            --container-background: #34495e;
+            --container-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --button-hover: #2980b9;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--container-background);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--container-shadow);
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+        form {
+            display: grid;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--secondary-color);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: var(--input-background);
+            color: var(--text-color);
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        button {
+            padding: 14px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+        #themeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        #themeToggle:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.1);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            input[type="text"], button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="themeToggle" aria-label="Alternar tema">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </button>
+    <div class="container">
+        <h1>Gerador de Relatório PDF</h1>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="conta">Conta:</label>
+                <input type="text" id="conta" name="conta" required>
+            </div>
+            <div class="form-group">
+                <label for="codigoCorrente">Código Corrente:</label>
+                <input type="text" id="codigoCorrente" name="codigoCorrente" required>
+            </div>
+            <div class="form-group">
+                <label for="codigoAplicacao">Código Aplicação:</label>
+                <input type="text" id="codigoAplicacao" name="codigoAplicacao" required>
+            </div>
+            <div class="form-group">
+                <label for="rubricaCorrente">Rúbrica Corrente:</label>
+                <input type="text" id="rubricaCorrente" name="rubricaCorrente" required>
+            </div>
+            <div class="form-group">
+                <label for="rubricaAplicacao">Rúbrica Aplicação:</label>
+                <input type="text" id="rubricaAplicacao" name="rubricaAplicacao" required>
+            </div>
+            <div class="form-group">
+                <label for="fonteRecurso">Fonte Recurso:</label>
+                <input type="text" id="fonteRecurso" name="fonteRecurso" required>
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao" name="descricao" required>
+            </div>
+            <div class="form-group">
+                <label for="banco">Banco:</label>
+                <input type="text" id="banco" name="banco" required>
+            </div>
+            <div class="form-group">
+                <label for="setor">Setor:</label>
+                <input type="text" id="setor" name="setor" required>
+            </div>
+            <div class="form-group">
+                <label for="situacao">Situação:</label>
+                <input type="text" id="situacao" name="situacao" required>
+            </div>
+            <div class="form-group">
+                <label for="observacao">Observação:</label>
+                <input type="text" id="observacao" name="observacao">
+            </div>
+            <button type="button" onclick="generatePDF()">Gerar PDF</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            updateThemeToggleIcon(newTheme);
+        }
+
+        function updateThemeToggleIcon(theme) {
+            const toggleButton = document.getElementById('themeToggle');
+            toggleButton.innerHTML = theme === 'dark' 
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateThemeToggleIcon('dark');
+        });
+
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const headers = [
+                'Conta', 'Cód. Corrente', 'Cód. Aplicação', 'Rúb. Corrente',
+                'Rúb. Aplicação', 'Fonte Rec.', 'Descrição', 'Banco',
+                'Setor', 'Situação', 'Observação'
+            ];
+
+            const data = [
+                document.getElementById('conta').value,
+                document.getElementById('codigoCorrente').value,
+                document.getElementById('codigoAplicacao').value,
+                document.getElementById('rubricaCorrente').value,
+                document.getElementById('rubricaAplicacao').value,
+                document.getElementById('fonteRecurso').value,
+                document.getElementById('descricao').value,
+                document.getElementById('banco').value,
+                document.getElementById('setor').value,
+                document.getElementById('situacao').value,
+                document.getElementById('observacao').value
+            ];
+
+            // Configuração de estilo para o PDF
+            doc.setFillColor(52, 152, 219);
+            doc.rect(0, 0, 297, 35, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("PREFEITURA DE INAJÁ", 149, 15, null, null, 'center');
+            doc.setFontSize(18);
+            doc.text("Relatório de Dados", 149, 25, null, null, 'center');
+
+            doc.autoTable({
+                head: [headers],
+                body: [data],
+                startY: 40,
+                headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+                bodyStyles: { textColor: 44 },
+                alternateRowStyles: { fillColor: [242, 242, 242] },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 25 },
+                    2: { cellWidth: 25 },
+                    3: { cellWidth: 25 },
+                    4: { cellWidth: 25 },
+                    5: { cellWidth: 20 },
+                    6: { cellWidth: 'auto' },
+                    7: { cellWidth: 20 },
+                    8: { cellWidth: 20 },
+                    9: { cellWidth: 20 },
+                    10: { cellWidth: 'auto' }
+                },
+                margin: { top: 40, right: 7, bottom: 7, left: 7 },
+                didDrawPage: function (data) {
+                    // Adicionar rodapé
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text('Página ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.height - 10);
+                }
+            });
+
+            doc.save('relatorio_dados_inaja.pdf');
+        }
+    </script>
+</body>
+</html>
